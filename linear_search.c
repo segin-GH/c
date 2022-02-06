@@ -1,20 +1,20 @@
-#include <stdio.h>
-#include <cs50.h>
+# include <stdio.h>
+# include <cs50.h>
+# include <string.h>
 
-int main (void)
+int main(void)
 {
-    int number [] = {1,5,6,3,6,7,8,9,3,5};
+    string names [] = {"luffy","zoro","sanji","nami","robin","ace"};
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 6; i++)
     {
-        if (number[i] == 4)
+        if( strcmp (names[i] , "ace") == 0)
         {
-            printf("found.\n");
+            printf("found\n");
             return 0;
         }
 
     }
-
-    printf("notfound.\n");
+    printf("notfound\n");
     return 1;
 }
