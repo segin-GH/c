@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <cs50.h>
+#include "cs50.h"
 
 int main (void)
 {
@@ -7,7 +7,7 @@ int main (void)
 
     for (int i = 0; i < 10; i++)
     {
-        if (number[i] == 4)
+        if (number[i] == 3)
         {
             printf("found.\n");
             return 0;
