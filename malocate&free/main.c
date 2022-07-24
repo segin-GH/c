@@ -1,6 +1,6 @@
 # include <stdio.h>
 # include <stdlib.h>
-# include <ctype.h>
+
 # include <string.h>
 
 void copyString( char *t ,char *s );
