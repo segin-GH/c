@@ -1,22 +1,30 @@
+
 # include <stdio.h>
 # include <stdlib.h>
 
+// for define a node
 typedef struct node
 {
     int number;
     struct node *next;
 }
-node;
+node; // calling it "node" rather than "struct node"
+
+// for defining fuctions bcz compiler is dumb;
 
 void add_new_node_between(node *prevNode, node *newnode, int number);
+/*
+this function adds a node in between 
+
+*/
+
 node* add_new_node_beginning(node *newNode,int number ,node *prevNode);
 void add_new_node_end(node *prevNode, node *newnode, int number);
 void printLinkedList(node *nodehead);
 void display_total_memory_used_by_list(node *headNode);
-void delSubseqNode(node *headNode , int num_to_comp);
 
 
-// void clean_memory(node *nodeHead);
+void clean_memory(node *nodeHead);
 
 
 int main(void)
@@ -56,8 +64,8 @@ int main(void)
 // adding a new node in the beginning
     printf("adding a node at beginning : \n");
     node *nodenew;
-    nodeZero = add_new_node_beginning(nodenew,20,nodeZero);
-    printLinkedList(nodeZero);
+    nodenew = add_new_node_beginning(nodenew,20,nodeZero);
+    printLinkedList(nodenew);
     printf("\n");
 
 
@@ -67,10 +75,19 @@ int main(void)
     add_new_node_end(nodeTwo,nodeFive,11);
     printLinkedList(nodeZero);
     printf("\n");
-
+   
     display_total_memory_used_by_list(nodeZero);
+   
+    // delSubseqNode(nodeZero,10);
 
-    delSubseqNode(nodeZero,10);
+
+// to free all the used up memory by malloc;
+    while(nodenew != NULL)
+    {
+        node *temp = nodenew -> next;
+        free(nodenew);
+        nodenew = temp;
+    }
 
 }
 
@@ -147,18 +164,7 @@ void display_total_memory_used_by_list(node *headNode)
     printf("Total memory used,%i bytes\n",totalMemory);
 }
 
-void delSubseqNode(node *headNode , int num_to_comp)
-{
 
-
-    for(node *temp = headNode;  temp != NULL; temp = temp->next)
-    {   
-        if(temp->number == num_to_comp)
-        {
-            printf("ok\n");
-        }
-    }
-}
 
     // for (node *temp = headNode;  temp != NULL; temp = temp->next)
     // {   
