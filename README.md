@@ -1,2 +1,2 @@
-# cs50.mycodes
+#c-programs
 
