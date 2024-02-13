@@ -20,7 +20,6 @@ int main() {
 
         if (counter == 16) {
             printf("\n");
-            sleep(1); // here's your dramatic pause, don't get too emotional
             counter = 0;
         }
     }
