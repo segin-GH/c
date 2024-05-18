@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define SOCKET int
+
 int main(int argc, char *argv[])
 {
     if (argc < 3)
@@ -35,4 +37,11 @@ int main(int argc, char *argv[])
                 sizeof(service_buffer), NI_NUMERICHOST);
 
     printf("%s %s\n", address_buffer, service_buffer);
+
+    SOCKET sock_peer = socket(peer_info->ai_family, peer_info->ai_socktype, peer_info->ai_protocol);
+    if (sock_peer == -1)
+    {
+        fprintf(stderr, "socket failed with error(%d)\n", errno);
+        return 1;
+    }
 }
