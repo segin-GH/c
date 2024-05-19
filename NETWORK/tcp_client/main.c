@@ -1,7 +1,9 @@
 #include <arpa/inet.h>
+#include <bits/types/struct_timeval.h>
 #include <errno.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -44,4 +46,59 @@ int main(int argc, char *argv[])
         fprintf(stderr, "socket failed with error(%d)\n", errno);
         return 1;
     }
+
+    printf("Connecting to remote...\n");
+    if (connect(sock_peer, peer_info->ai_addr, peer_info->ai_addrlen))
+    {
+        fprintf(stderr, "Connect() failed. (%d)\n", errno);
+        return 1;
+    }
+    freeaddrinfo(peer_info);
+
+    printf("Connected\n");
+    printf("To Send Data, enter the text followed by enter.");
+
+    for (;;)
+    {
+        fd_set reads;
+        FD_ZERO(&reads);
+        FD_SET(sock_peer, &reads);
+
+        struct timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 100000;
+
+        if (select(sock_peer + 1, &reads, 0, 0, &timeout) < 0)
+        {
+            fprintf(stderr, "select() failed. (%d)\n", errno);
+            return 1;
+        }
+
+        if (FD_ISSET(sock_peer, &reads))
+        {
+            char read[4096];
+
+            int bytes_received = recv(sock_peer, read, 4096, 0);
+            if (bytes_received < 1)
+            {
+                printf("Connection closed by peer.\n");
+                break;
+            }
+            printf("Received (%d bytes): %.*s", bytes_received, bytes_received, read);
+
+            if (FD_ISSET(0, &reads))
+            {
+                char read[4096];
+                if (!fgets(read, 4096, stdin))
+                    break;
+
+                printf("Sending: %s", read);
+                int bytes_sent = send(sock_peer, read, strlen(read), 0);
+                printf("Sent %d bytes. \n", bytes_sent);
+            }
+        }
+    }
+
+    printf("Closing socket\n");
+    close(sock_peer);
 }
