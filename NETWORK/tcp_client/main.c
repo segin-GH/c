@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     freeaddrinfo(peer_info);
 
     printf("Connected\n");
-    printf("To Send Data, enter the text followed by enter.");
+    printf("To Send Data, enter the text followed by enter.\n");
 
     for (;;)
     {
@@ -85,17 +85,17 @@ int main(int argc, char *argv[])
                 break;
             }
             printf("Received (%d bytes): %.*s", bytes_received, bytes_received, read);
+        }
 
-            if (FD_ISSET(0, &reads))
-            {
-                char read[4096];
-                if (!fgets(read, 4096, stdin))
-                    break;
+        if (FD_ISSET(0, &reads))
+        {
+            char read[4096];
+            if (!fgets(read, 4096, stdin))
+                break;
 
-                printf("Sending: %s", read);
-                int bytes_sent = send(sock_peer, read, strlen(read), 0);
-                printf("Sent %d bytes. \n", bytes_sent);
-            }
+            printf("Sending: %s", read);
+            int bytes_sent = send(sock_peer, read, strlen(read), 0);
+            printf("Sent %d bytes. \n", bytes_sent);
         }
     }
 
