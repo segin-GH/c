@@ -1,7 +1,3 @@
-/*
- * WRITING A SIMPLE SERVER
- * */
-
 #include <pthread.h>
 #include <sched.h>
 #include <stdint.h>
@@ -12,8 +8,9 @@
 
 void *thread_function(void *args)
 {
+    pthread_detach(pthread_self());
     printf("Got data %d\n", (int)(size_t)args);
-    return NULL;
+    pthread_exit(NULL);
 }
 
 int main()
@@ -29,8 +26,9 @@ int main()
         printf("Error creating thread.\n");
         return 1;
     }
-    printf("Creating a Thread with id (%lu)\n", thread);
 
-    pthread_join(thread, NULL);
+    printf("Creating a Thread with id (%lu)\n", thread);
+    pthread_exit(NULL);
+
     return 0;
 }
