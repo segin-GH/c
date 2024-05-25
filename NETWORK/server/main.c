@@ -7,9 +7,44 @@
 #include <errno.h>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <pthread.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+void *workers(void *args)
+{
+    char request[1024];
+    int socket_client = (int)(size_t)args;
+    int bytes_received = recv(socket_client, request, 1024, 0);
+    printf("received %d bytes\n", bytes_received);
+    printf("%.*s", bytes_received, request);
+    // simulating a heavy task done by the server
+    sleep(1);
+
+    printf("Sending response....\n");
+    const char *response = "HTTP/1.1 200 OK\r\n"
+                           "Connection: close\r\n"
+                           "Content-Type: text/plain\r\n\r\n"
+                           "Local time is: ";
+
+    int bytes_sent = send(socket_client, response, strlen(response), 0);
+    printf("Sent %d of %d bytes.\n", bytes_sent, (int)strlen(response));
+
+    time_t timer;
+    time(&timer);
+    printf("Sending Local time is: %s", ctime(&timer));
+    char *time_msg = ctime(&timer);
+
+    bytes_sent = send(socket_client, time_msg, strlen(time_msg), 0);
+    printf("Sent %d of %d bytes.\n", bytes_sent, (int)strlen(time_msg));
+
+    printf("Closing connection....\n");
+    close(socket_client);
+    pthread_detach(pthread_self());
+    pthread_exit(NULL);
+    printf("Thread closed.\n");
+}
 
 int main()
 {
@@ -67,33 +102,16 @@ int main()
                     NI_NUMERICHOST);
         printf("%s\n", addr_buffer);
 
-        printf("Reading request...\n");
-        char request[1024];
+        pthread_t thread;
 
-        int bytes_received = recv(socket_client, request, 1024, 0);
-        printf("received %d bytes\n", bytes_received);
-        printf("%.*s", bytes_received, request);
-        // simulating a heavy task done by the server
-        sleep(1);
+        printf("Creating thread.\n");
+        int temp = 10;
 
-        printf("Sending response....\n");
-        const char *response = "HTTP/1.1 200 OK\r\n"
-                               "Connection: close\r\n"
-                               "Content-Type: text/plain\r\n\r\n"
-                               "Local time is: ";
-
-        int bytes_sent = send(socket_client, response, strlen(response), 0);
-        printf("Sent %d of %d bytes.\n", bytes_sent, (int)strlen(response));
-
-        time_t timer;
-        time(&timer);
-        printf("Sending Local time is: %s", ctime(&timer));
-        char *time_msg = ctime(&timer);
-
-        bytes_sent = send(socket_client, time_msg, strlen(time_msg), 0);
-        printf("Sent %d of %d bytes.\n", bytes_sent, (int)strlen(time_msg));
-
-        printf("Closing connection....\n");
-        close(socket_client);
+        int ret = pthread_create(&thread, NULL, workers, (void *)(size_t)socket_client);
+        if (ret != 0)
+        {
+            printf("Error creating thread.\n");
+            return 1;
+        }
     }
 }
