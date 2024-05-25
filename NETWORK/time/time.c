@@ -2,13 +2,13 @@
 #include <string.h>
 #include <time.h>
 
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <errno.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 int main()
 {
@@ -21,7 +21,11 @@ int main()
     hints.ai_flags = AI_PASSIVE;
 
     struct addrinfo *bind_addr;
-    getaddrinfo(0, "8080", &hints, &bind_addr);
+    if (getaddrinfo(0, "8080", &hints, &bind_addr))
+    {
+        fprintf(stderr, "getaddrinfo() failed. (%d)\n", errno);
+        return 1;
+    }
 
     printf("Creating Sockets...\n");
     int socket_listen = socket(bind_addr->ai_family, bind_addr->ai_socktype, bind_addr->ai_protocol);
@@ -69,11 +73,10 @@ int main()
     printf("%.*s", bytes_received, request);
 
     printf("Sending response....\n");
-    const char *response =
-        "HTTP/1.1 200 OK\r\n"
-        "Connection: close\r\n"
-        "Content-Type: text/plain\r\n\r\n"
-        "Local time is: ";
+    const char *response = "HTTP/1.1 200 OK\r\n"
+                           "Connection: close\r\n"
+                           "Content-Type: text/plain\r\n\r\n"
+                           "Local time is: ";
 
     int bytes_sent = send(socket_client, response, strlen(response), 0);
     printf("Sent %d of %d bytes.\n", bytes_sent, (int)strlen(response));
