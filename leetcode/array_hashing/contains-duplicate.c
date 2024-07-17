@@ -1,38 +1,79 @@
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-bool containsDuplicate(int *nums, int numsSize)
+struct HashTable
 {
-    for (int i = 0; i < numsSize; i++)
+    int *table;
+    int size;
+};
+
+unsigned int hash(int key, int size)
+{
+    return key % size;
+}
+
+bool contains(struct HashTable *hashTable, int key)
+{
+    unsigned int index = hash(key, hashTable->size);
+    while (hashTable->table[index] != -1)
     {
-        int itr = i;
-        int val = nums[i];
-
-        for (int j = 0; j < numsSize; j++)
+        if (hashTable->table[index] == key)
         {
-            if (itr == j)
-                continue;
-
-            if (val == nums[j])
-            {
-                return true;
-            }
+            return true;
         }
+        index = (index + 1) % hashTable->size;
     }
-
     return false;
 }
 
-int main(void)
+void insert(struct HashTable *hashTable, int key)
 {
-    int nums[] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int n = sizeof(nums) / sizeof(nums[0]);
+    unsigned int index = hash(key, hashTable->size);
+    while (hashTable->table[index] != -1)
+    {
+        index = (index + 1) % hashTable->size;
+    }
+    hashTable->table[index] = key;
+}
 
-    bool ret = containsDuplicate(nums, n);
-    if (ret)
-        printf("Contains duplicate\n");
+bool containsDuplicate(int *nums, int numsSize)
+{
+    struct HashTable hashTable;
+    hashTable.size = numsSize * 2;
+    hashTable.table = (int *)malloc(hashTable.size * sizeof(int));
+    for (int i = 0; i < hashTable.size; i++)
+    {
+        hashTable.table[i] = -1;
+    }
+
+    for (int i = 0; i < numsSize; i++)
+    {
+        if (contains(&hashTable, nums[i]))
+        {
+            free(hashTable.table);
+            return true;
+        }
+        insert(&hashTable, nums[i]);
+    }
+
+    free(hashTable.table);
+    return false;
+}
+
+int main()
+{
+    int nums[] = {1, 2, 3, 4, 5, 6, 7};
+    int size = sizeof(nums) / sizeof(nums[0]);
+
+    if (containsDuplicate(nums, size))
+    {
+        printf("The array contains duplicates.\n");
+    }
     else
-        printf("Does not contain duplicate\n");
+    {
+        printf("The array does not contain duplicates.\n");
+    }
 
     return 0;
 }
